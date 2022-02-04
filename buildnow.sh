@@ -10,11 +10,6 @@ set -x
 pushd ~/git/docker-planefence-notifier
 git checkout $BRANCH || exit 2
 
-#cp -P /etc/ssl/certs/*.crt ./root_certs/etc/ssl/certs
-#cp -P /etc/ssl/certs/*.pem ./root_certs/etc/ssl/certs
-#cp -P /usr/share/ca-certificates/mozilla/*.crt ./root_certs/usr/share/ca-certificates/mozilla
-
 git pull -a
-docker buildx build --progress=plain --compress --push $2 --platform $ARCHS --tag kx1t/radarvirtuel:$TAG .
-#rm -rf ./root_certs
+docker buildx build --progress=plain --compress --push $2 --platform $ARCHS --tag kx1t/$(pwd | sed -n 's|.*/docker-\(.*\)|\1|p'):$TAG .
 popd
