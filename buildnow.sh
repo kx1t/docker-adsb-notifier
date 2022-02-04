@@ -7,7 +7,7 @@ set -x
 [[ "$ARCHS" == "" ]] && ARCHS="linux/armhf,linux/arm64,linux/amd64"
 
 IMAGE=kx1t/$(pwd | sed -n 's|.*/docker-\(.*\)|\1|p'):$TAG
-echo "press enter to start building $IMAGE"
+echo "press enter to start building $IMAGE from $BRANCH"
 read
 
 # rebuild the container
