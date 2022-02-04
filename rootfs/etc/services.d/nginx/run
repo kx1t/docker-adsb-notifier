@@ -1,0 +1,49 @@
+#!/usr/bin/with-contenv bash
+#shellcheck shell=bash
+
+APPNAME="$(hostname)/nginx"
+
+echo "[$APPNAME][$(date)] Started as an s6 service"
+
+# create run directory. This is where the locations.conf file will be located.
+mkdir -p /run/nginx/html
+cp -n /root/index.html /run/nginx/html
+chmod a+rwx /run/nginx /run/nginx/html
+chmod a+rw /run/nginx/*
+chmod a+rw /run/nginx/html/*
+
+n -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# set logging to what VERBOSELOG says. Any value other than OFF is interpreted to be ON
+if [[ "$VERBOSELOG"="OFF" ]]
+then
+    sed -i 's|\(^\s*access_log \).*|\1off;|' /etc/nginx/nginx.conf
+    sed -i 's|\(^\s*error_log \).*|\1off;|' /etc/nginx/nginx.conf
+else
+    sed -i 's|\(^\s*access_log \).*|\1/dev/stdout;|' /etc/nginx/nginx.conf
+    sed -i 's|\(^\s*error_log \).*|\1/dev/stdout;|' /etc/nginx/nginx.conf
+fi
+
+# now test the nginx configuration
+if ! /usr/sbin/nginx -g 'daemon off;' -t -q
+then
+    # nginx config problem. Complain and stop the container:
+    echo "--------------------------------------------------"
+    echo "|      STOP ! NGINX configuration problem        |"
+    echo "--------------------------------------------------"
+    #s6-svscanctl -t /var/run/s6/services
+    # if the previous command somehow fails to bring down the container, we'll just loop forevah:
+    while true; do sleep 99999; done
+fi
+
+# Finally -- start nginx and loop forever if it quits for some reason:
+echo "[$APPNAME][$(date)] Starting the NGINX service..."
+while true
+do
+    touch /tmp/nginx.up
+    /usr/sbin/nginx -g 'daemon off;'
+    rm -f /tmp/nginx.up
+    echo "[$APPNAME][$(date)] NGINX Service has exited."
+    sleep 10
+    echo "[$APPNAME][$(date)] Restarting NGINX Service now..."
+done
