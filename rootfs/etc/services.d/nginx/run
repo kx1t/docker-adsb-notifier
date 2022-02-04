@@ -12,7 +12,7 @@ chmod a+rwx /run/nginx /run/nginx/html
 chmod a+rw /run/nginx/*
 chmod a+rw /run/nginx/html/*
 
-n -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # set logging to what VERBOSELOG says. Any value other than OFF is interpreted to be ON
 if [[ "$VERBOSELOG"="OFF" ]]
