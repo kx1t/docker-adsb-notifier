@@ -7,8 +7,8 @@ echo "[$APPNAME][$(date)] Started as an s6 service"
 
 # create run directory. This is where the locations.conf file will be located.
 
-php-fpm -g /run/php-fpm.pid -D
+php-fpm7.4 -g /run/php-fpm.pid -D
 echo "[$APPNAME][$(date)] Up and running"
-exec wait $(cat /tmp/php-fpm.pid) exit 0
+exec wait $(cat /run/php-fpm.pid) exit 0
 echo "[$APPNAME][$(date)] Service exited, restarting in 5 seconds"
 sleep 5s
