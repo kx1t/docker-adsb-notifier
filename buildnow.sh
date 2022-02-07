@@ -11,9 +11,6 @@ echo "press enter to start building $IMAGE from $BRANCH"
 read
 
 # rebuild the container
-pushd ~/git/docker-planefence-notifier
 git checkout $BRANCH || exit 2
-
 git pull -a
 docker buildx build --progress=plain --compress --push $2 --platform $ARCHS --tag $IMAGE .
-popd
