@@ -7,7 +7,6 @@ echo "[$APPNAME][$(date)] Started as an s6 service"
 
 # create run directory. This is where the locations.conf file will be located.
 mkdir -p /run/nginx/html
-cp -n /root/index.html /run/nginx/html
 chmod a+rwx /run/nginx /run/nginx/html
 chmod a+rw /run/nginx/*
 chmod a+rw /run/nginx/html/*
@@ -15,7 +14,7 @@ chmod a+rw /run/nginx/html/*
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # set logging to what VERBOSELOG says. Any value other than OFF is interpreted to be ON
-if [[ "$VERBOSELOG"="OFF" ]]
+if [[ "$VERBOSELOG" == "OFF" ]]
 then
     sed -i 's|\(^\s*access_log \).*|\1off;|' /etc/nginx/nginx.conf
     sed -i 's|\(^\s*error_log \).*|\1off;|' /etc/nginx/nginx.conf
