@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  planefence-notifier:
+  #
+  # Add the services that need to be invoked comma separated to the NOTIFIERS environment variable.
+  # If any of the notifier needs to pass in special credentials or parameters, these can be passed in
+  # as environment variables. Please observe the following syntax:
+  # - NOTIFY_xxxxx_VARIABLE=yyyyy where xxxxx is the notifier name in CAPITALS
+  # - for example, NOTIFY_DISCORD_PAWEBHOOK=http://webhook
+  #
+    image: kx1t/planefence-notifier
+    tty: true
+    container_name: planefence-notifier
+    hostname: planefence-notifier
+    restart: always
+    depends_on:
+      - planefence
+    environment:
+      - VERBOSELOG=true
+      - VERBOSE=true
+      - NOTIFIERS=twitter,discord,mqtt,ifttt
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,relatime,size=128M
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+    ports:
+      - 9999:80
