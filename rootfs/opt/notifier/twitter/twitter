@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+
+# this will test the time-out
+echo "#twitter: cmdline args = ${@}"
+echo "#twitter: sleeping 5 and then exit(99)"
+sleep 5
+exit 99

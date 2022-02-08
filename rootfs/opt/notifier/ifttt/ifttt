@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+
+# this will test the time-out
+echo "#ifttt: cmdline args = ${@}"
+echo "#ifttt: sleeping 60 and then exit(0)"
+sleep 60
+exit 0
