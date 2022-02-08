@@ -20,7 +20,7 @@ do
   if [[ -f "${Exec_string}" ]]
   then
     echo "#200 Invoking ${Notifier}"
-    "${Exec_string}" "${@}" >/dev/null 2>&1 & PIDLIST+=("$!") && PROCLIST+=(${Notifier})
+    "${Exec_string}" "${@}" & PIDLIST+=("$!") && PROCLIST+=(${Notifier})
   else echo "#500 Error - ${Notifier}: handler not found"
   fi
 done
