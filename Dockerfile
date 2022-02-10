@@ -4,10 +4,12 @@ RUN set -x && \
 # define packages needed for installation and general management of the container:
     TEMP_PACKAGES=() && \
     KEPT_PACKAGES=() && \
+    KEPT_PIP3_PACKAGES=() && \
     KEPT_PACKAGES+=(procps nano aptitude netcat) && \
     KEPT_PACKAGES+=(nginx) && \
     KEPT_PACKAGES+=(php-fpm) && \
     KEPT_PACKAGES+=(psmisc) && \
+    KEPT_PIP3_PACKAGES+=(apprise) && \
 #
 # Install all these packages:
     apt-get update && \
@@ -15,12 +17,15 @@ RUN set -x && \
         ${KEPT_PACKAGES[@]} \
         ${TEMP_PACKAGES[@]} && \
 #
-# Clean up:
+# Clean up apt installations:
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -o APT::Autoremove::RecommendsImportant=0 -o APT::Autoremove::SuggestsImportant=0 -y && \
     apt-get clean -y && \
     rm -rf /src/* /tmp/* /var/lib/apt/lists/* && \
 
+#
+# PIP3 installations:
+    pip3 install ${KEPT_PIP3_PACKAGES[@]} && \
 #
 # Do some other stuff
     echo "alias dir=\"ls -alsv\"" >> /root/.bashrc && \
