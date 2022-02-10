@@ -1,9 +1,9 @@
 <?php
   // concatenate the input strings into a single argument string
 
-if (isset($_GET['status']))
+if (isset($_POST['status']))
 {
-  $notif_id = escapeshellarg($_GET['status']);
+  $notif_id = escapeshellarg($_POST['status']);
 
   system("/opt/notifier/monitor.sh {$notif_id}", $return_value);
   ($return_value == 0) or die("500 php error({$return_value})");
