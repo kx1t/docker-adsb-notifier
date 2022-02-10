@@ -22,5 +22,5 @@ echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: sleeping 15 and then exit(0)"
 
 sleep 15
 
-echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Task complete
+echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Task complete"
 exit 0

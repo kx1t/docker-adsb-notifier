@@ -22,5 +22,5 @@ echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: sleeping 10 and then exit(99)"
 
 sleep 10
 
-echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Exiting with test code 99
+echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Exiting with test code 99"
 exit 99
