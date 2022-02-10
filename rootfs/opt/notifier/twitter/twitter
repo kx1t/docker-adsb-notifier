@@ -35,12 +35,12 @@ do
   case "$returnvalue" in
 
     "0")
-      echo "400 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: file=${result}"
+      echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: file=${result}"
       break
     ;;
 
     "1")
-      echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting $result"
+      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting $result"
       sleep "$result"
       continue
     ;;
@@ -52,5 +52,5 @@ do
   esac
 done
 
-echo "400 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: done, now we could do more stuff..."
+echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: done, now we could do more stuff..."
 exit 0
