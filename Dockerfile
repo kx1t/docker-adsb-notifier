@@ -24,7 +24,10 @@ RUN set -x && \
 #
 # Do some other stuff
     echo "alias dir=\"ls -alsv\"" >> /root/.bashrc && \
-    echo "alias nano=\"nano -l\"" >> /root/.bashrc
+    echo "alias nano=\"nano -l\"" >> /root/.bashrc && \
+#
+# Fix directory permissions so php (user www-data) can write to it:
+  chmod a=rwx /run/notifier/procs/
 
 # Copy the rootfs into place:
 #
