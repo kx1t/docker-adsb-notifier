@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv bash
+#shellcheck shell=bash
+
+APPNAME="$(hostname)/cleanup"
+
+[[ "$CLEANUPINTERVAL" == "" ]] && CLEANUPINTERVAL="60"
+
+echo "[$APPNAME][$(date)] Cleanup every ${CLEANUPINTERVAL} minutes - next run at $(date -d "@$(( $(date +%s) + CLEANUPINTERVAL*60 ))")."
+sleep "${CLEANUPINTERVAL}m"
+find /run/notifier/procs -type f -mmin +"${CLEANUPINTERVAL}" -delete >/dev/null 2>&1

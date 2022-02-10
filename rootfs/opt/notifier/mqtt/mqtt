@@ -1,7 +1,26 @@
 #!/usr/bin/with-contenv bash
 
-# this will test the time-out
-echo "#mqtt: cmdline args = ${@}"
-echo "#mqtt: sleeping 5 and then exit(0)"
+SERVICE="mqtt"
+
+# Use the following response conventions:
+# "RESPCODE yyyymmdd-hhmmss-zzzz #servicename: info-text"
+# Where:
+# RESPCODE= 100 (info only), 102 (continue to process), 200 (done processing), 500 (fatal error)
+# Date string can be obtained with $(date +"%Y%m%d-%H%M%S%z")
+# Service name should be set as a constant
+#
+# Request parameters are passed to this service via the command line ($[@]) in the format "key=value"
+#
+# The notifier plugin writer is responsible to ensure that all notification processes finish properly.
+# Notification execution should NOT be swapped to the background, but is allowed to block this process until done.
+# Any output that is written to stdout from this process will be captured and made available to the requestor by
+# POSTing "status=callback-handler" to "notify.php". The callback-handler was provided in the reponse
+# to the original notification request.
+
+echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: cmdline args = ${@}"
+echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: sleeping 5 and then exit(0)"
+
 sleep 5
+
+echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Task complete
 exit 0

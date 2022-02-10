@@ -8,7 +8,7 @@ services:
   # as environment variables. Please observe the following syntax:
   # - NOTIFY_xxxxx_VARIABLE=yyyyy where xxxxx is the notifier name in CAPITALS
   # - for example, NOTIFY_DISCORD_PAWEBHOOK=http://webhook
-  #
+  # CLEANUPINTERVAL (units=minutes) optional -- if omitted, it defaults to 60 (minutes)
     image: kx1t/planefence-notifier
     tty: true
     container_name: planefence-notifier
@@ -20,6 +20,7 @@ services:
       - VERBOSELOG=true
       - VERBOSE=true
       - NOTIFIERS=twitter,discord,mqtt,ifttt
+      - CLEANUPINTERVAL=60
     tmpfs:
       - /tmp:rw,nosuid,nodev,noexec,relatime,size=128M
     volumes:
