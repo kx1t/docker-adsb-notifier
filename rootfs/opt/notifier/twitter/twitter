@@ -20,15 +20,18 @@ SERVICE="twitter"
 MAXWAITTIME=60
 echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: cmdline args = ${@}"
 
-# read parameters into arrays "key" and "value":
-declare -A params
-for Arg in "${a[@]}"; do params+=([${Arg%=*}]=${Arg#*=}); done
+# read commandline params into param[key]
+# You can access them as ICAO=param[icao] etc
+arguments=( "$@" )
+declare -A param
+for Arg in "${arguments[@]}"; do param+=([${Arg%=*}]=${Arg#*=}); done
 
-echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: getting picture experiment"
+echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: twitter notifier"
 
 STARTTIME="$(date +%s)"
 while (( $(date +%s) < (STARTTIME + MAXWAITTIME) ))
 do
+  echo "102 invoking /opt/notifier/getscreenshot.sh ${param[icao]} ${param[notifyproc]}"
   result="$(/opt/notifier/getscreenshot.sh "${param[icao]}" "${param[notifyproc]}")"
   returnvalue="$?"
 
@@ -41,16 +44,19 @@ do
 
     "1")
       echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting $result"
+      # Sleep for the time that the getscreenshot service recommends before trying again to get the results.
+      # This is based on the longest time it could take for the service to return a screenshot: default=45 secs.
+      # Based on your preferences, you may decide to check more often, for example in 10 seconds intervals.
       sleep "$result"
       continue
     ;;
 
     *)
-      echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Exiting with test code $returnvalue"
-      exit $returnvalue
+      echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: GetScreenshot unsuccessful, returned $returnvalue"
+      break
     ;;
   esac
 done
 
-echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: done, now we could do more stuff..."
+echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: GetScreenshot is finished, now we can do other things..."
 exit 0

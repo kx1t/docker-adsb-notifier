@@ -55,21 +55,24 @@ touch "${SCREENSHOT_FILE}.lock"
 # do some clean-up:
 find "${SCREENSHOT_DIR}" -type f -mmin +"$(( SCREENSHOT_RETENTION / 60 ))" -delete >/dev/null 2>&1
 
-
-
 # Now get the screenshot if it doesn't already exist:
 if [[ -f "${SCREENSHOT_FILE}" ]]
 then
   # we already have a valid screenshot - no need to generate one.
   echo "${SCREENSHOT_FILE}"
-  exit 0
+  exitcode=0
 else
   if curl -L -s --max-time $SCREENSHOT_TIMEOUT --fail "${SCREENSHOT_URL}/snap/${ICAO}" -o "${SCREENSHOT_FILE}"
   then
     # success getting a screenshot
-    echo "${SCREENSHOTDIR}/${ICAO}.png"
-    exit 0
+    echo "${SCREENSHOT_FILE}"
+    exitcode=0
   else
-    exit 99
+    exitcode=99
   fi
 fi
+
+# remove lock
+rm -rf "${SCREENSHOT_FILE}.lock"
+
+exit $exitcode
