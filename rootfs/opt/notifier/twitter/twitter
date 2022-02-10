@@ -17,10 +17,40 @@ SERVICE="twitter"
 # POSTing "status=callback-handler" to "notify.php". The callback-handler was provided in the reponse
 # to the original notification request.
 
+MAXWAITTIME=60
 echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: cmdline args = ${@}"
-echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: sleeping 10 and then exit(99)"
 
-sleep 10
+# read parameters into arrays "key" and "value":
+declare -A params
+for Arg in "${a[@]}"; do params+=([${Arg%=*}]=${Arg#*=}); done
 
-echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Exiting with test code 99"
-exit 99
+echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: getting picture experiment"
+
+STARTTIME="$(date +%s)"
+while (( $(date +%s) < (STARTTIME + MAXWAITTIME) ))
+do
+  result="$(/opt/notifier/getscreenshot.sh "${param[icao]}" "${param[notifyproc]}")"
+  returnvalue="$?"
+
+  case "$returnvalue" in
+
+    "0")
+      echo "400 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: file=${result}"
+      break
+    ;;
+
+    "1")
+      echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting $result"
+      sleep "$result"
+      continue
+    ;;
+
+    *)
+      echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Exiting with test code $returnvalue"
+      exit $returnvalue
+    ;;
+  esac
+done
+
+echo "400 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: done, now we could do more stuff..."
+exit 0

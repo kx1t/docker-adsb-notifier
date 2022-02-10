@@ -3,8 +3,8 @@
 
 APPNAME="$(hostname)/cleanup"
 
-[[ "$CLEANUPINTERVAL" == "" ]] && CLEANUPINTERVAL="60"
+[[ "$CLEANUPINTERVAL" == "" ]] && CLEANUPINTERVAL="3600"
 
-echo "[$APPNAME][$(date)] Cleanup every ${CLEANUPINTERVAL} minutes - next run at $(date -d "@$(( $(date +%s) + CLEANUPINTERVAL*60 ))")."
+echo "[$APPNAME][$(date)] Cleanup every $((CLEANUPINTERVAL/60)) minutes - next run at $(date -d "@$(( $(date +%s) + CLEANUPINTERVAL ))")."
 sleep "${CLEANUPINTERVAL}m"
-find /run/notifier/procs -type f -mmin +"${CLEANUPINTERVAL}" -delete >/dev/null 2>&1
+find /run/notifier/procs -type f -mmin +"$((CLEANUPINTERVAL/60))" -delete >/dev/null 2>&1
