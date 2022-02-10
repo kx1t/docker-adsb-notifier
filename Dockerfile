@@ -27,7 +27,7 @@ RUN set -x && \
     echo "alias nano=\"nano -l\"" >> /root/.bashrc && \
 #
 # Fix directory permissions so php (user www-data) can write to it:
-  chmod a=rwx /run/notifier/procs/
+    mkdir -p /run/notifier/procs && chmod a=rwx /run/notifier/procs
 
 # Copy the rootfs into place:
 #
