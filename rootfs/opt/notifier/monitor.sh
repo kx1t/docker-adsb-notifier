@@ -7,7 +7,7 @@ PATH_PFX="/run/notifier/procs/"
 #echo "\$NOTIFIERS: $NOTIFIERS"
 
 echo "100 Notifier Monitor: invoked at $(date)"
-if [[ -f "$PATH_PFX/$1"]]
+if [[ -f "$PATH_PFX/$1" ]]
 then
   cat "$PATH_PFX/$1"
 else
