@@ -27,7 +27,7 @@ mkdir -p "${SCREENSHOT_DIR}"
 # Figure out the filename. If there's a ProcID - use that to see if there's an existing file for this ICAO.
 # If there's no ProcID --> use "ICAO.png" as file name.
 # If there is a ProcID --> use "ICAO-ProcID.png" as file name
-if [[ "${PROCID}" != "" ]]
+if [[ "${PROCID}" == "" ]]
 then
   SCREENSHOT_FILE="${SCREENSHOT_DIR}/${ICAO}.png"
 else
@@ -37,15 +37,24 @@ fi
 # Check if some other process is already making this screenshot. If so, tell the user to try again later:
 if [[ -f "${SCREENSHOT_FILE}.lock" ]]
 then
-  echo "${SCREENSHOT_TIMEOUT}"
+  echo "102 ${SCREENSHOT_TIMEOUT} your request is in progress, check back later"
   exit 1
+fi
+
+# Now check if there is anything else already creating a screenshot. The screenshot container processes request
+# one at a time and will delay the reponse beyond the SCREENSHOT_TIMEOUT for any subsequent requests.
+# If it's busy, tell the requestor to come back later
+if compgen -G "${SCREENSHOT_DIR}/*.lock" > /dev/null
+then
+  echo "503 ${SCREENSHOT_TIMEOUT} another request is still processing - try again later"
+  exit 2
 fi
 
 # wait some random time (between 0 and 2 seconds), check again, and if the lock file still doesn't exit, then create it:
 sleep $(bc -l <<< "$RANDOM / 32767 * 2 ")
 if [[ -f "${SCREENSHOT_FILE}.lock" ]]
 then
-  echo "${SCREENSHOT_TIMEOUT}"
+  echo "102 ${SCREENSHOT_TIMEOUT} your request is in progress, check back later"
   exit 1
 fi
 
@@ -59,15 +68,16 @@ find "${SCREENSHOT_DIR}" -type f -mmin +"$(( SCREENSHOT_RETENTION / 60 ))" -dele
 if [[ -f "${SCREENSHOT_FILE}" ]]
 then
   # we already have a valid screenshot - no need to generate one.
-  echo "${SCREENSHOT_FILE}"
+  echo "200 ${SCREENSHOT_FILE}"
   exitcode=0
 else
   if curl -L -s --max-time $SCREENSHOT_TIMEOUT --fail "${SCREENSHOT_URL}/snap/${ICAO}" -o "${SCREENSHOT_FILE}"
   then
     # success getting a screenshot
-    echo "${SCREENSHOT_FILE}"
+    echo "200 ${SCREENSHOT_FILE}"
     exitcode=0
   else
+    echo "504 timeout"
     exitcode=99
   fi
 fi

@@ -32,8 +32,9 @@ STARTTIME="$(date +%s)"
 while (( $(date +%s) < (STARTTIME + MAXWAITTIME) ))
 do
   echo "102 invoking /opt/notifier/getscreenshot.sh ${param[icao]} ${param[notifyproc]}"
-  result="$(/opt/notifier/getscreenshot.sh "${param[icao]}" "${param[notifyproc]}")"
+  IFS=" " read -ra resultarray <<< "$(/opt/notifier/getscreenshot.sh "${param[icao]}" "${param[notifyproc]}")"
   returnvalue="$?"
+  result=${resultarray[1]}
 
   case "$returnvalue" in
 
@@ -43,10 +44,16 @@ do
     ;;
 
     "1")
-      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting $result"
+      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting 15 seconds"
       # Sleep for the time that the getscreenshot service recommends before trying again to get the results.
       # This is based on the longest time it could take for the service to return a screenshot: default=45 secs.
       # Based on your preferences, you may decide to check more often, for example in 10 seconds intervals.
+      sleep "15s"
+      continue
+    ;;
+
+    "2")
+      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting for another request to finish before retrying"
       sleep "$result"
       continue
     ;;
