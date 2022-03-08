@@ -9,10 +9,10 @@ services:
   # - NOTIFY_xxxxx_VARIABLE=yyyyy where xxxxx is the notifier name in CAPITALS
   # - for example, NOTIFY_DISCORD_PAWEBHOOK=http://webhook
   # CLEANUPINTERVAL (units=minutes) optional -- if omitted, it defaults to 60 (minutes)
-    image: kx1t/planefence-notifier
+    image: kx1t/adsb-notifier
     tty: true
-    container_name: planefence-notifier
-    hostname: planefence-notifier
+    container_name: adsb-notifier
+    hostname: adsb-notifier
     restart: always
     environment:
       - CLEANUPINTERVAL=60
