@@ -24,10 +24,10 @@ RUN set -x && \
     pip3 install ${KEPT_PIP3_PACKAGES[@]} && \
 #
 # Install Apprise:
-    git clone --depth 1  https://github.com/caronc/apprise /tmp/apprise
-    pushd /tmp/apprise/
-      python3 ./setup.py install
-    popd
+    git clone --depth 1  https://github.com/caronc/apprise /tmp/apprise && \
+    pushd /tmp/apprise/ && \
+      python3 ./setup.py install && \
+    popd && \
 
 # Clean up apt installations:
     apt-get remove -y ${TEMP_PACKAGES[@]} && \
