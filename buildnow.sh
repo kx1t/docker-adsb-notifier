@@ -10,7 +10,9 @@ IMAGE=kx1t/$(pwd | sed -n 's|.*/docker-\(.*\)|\1|p'):$TAG
 echo "press enter to start building $IMAGE from $BRANCH"
 read
 
+starttime="$(date +%s)"
 # rebuild the container
 git checkout $BRANCH || exit 2
 git pull -a
 docker buildx build --progress=plain --compress --push $2 --platform $ARCHS --tag $IMAGE .
+echo "Total build time: $(( starttime - $(date +%s) )) seconds"
