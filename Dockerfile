@@ -11,7 +11,7 @@ RUN set -x && \
     KEPT_PACKAGES+=(psmisc) && \
     # KEPT_PIP3_PACKAGES+=(apprise) && \ for now, apprise must be installed from its github main branch until the twitter image features have been released
     KEPT_PIP3_PACKAGES+=(setuptools) && \
-    TEMP_PACKATES+=(git) && \
+    TEMP_PACKAGES+=(git) && \
 #
 # Install all these packages:
     apt-get update && \

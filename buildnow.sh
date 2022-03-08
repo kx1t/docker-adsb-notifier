@@ -15,4 +15,4 @@ starttime="$(date +%s)"
 git checkout $BRANCH || exit 2
 git pull -a
 docker buildx build --progress=plain --compress --push $2 --platform $ARCHS --tag $IMAGE .
-echo "Total build time: $(( starttime - $(date +%s) )) seconds"
+echo "Total build time: $(( $(date +%s) - starttime )) seconds"
