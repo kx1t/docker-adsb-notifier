@@ -14,13 +14,15 @@ services:
     container_name: planefence-notifier
     hostname: planefence-notifier
     restart: always
-    depends_on:
-      - planefence
     environment:
+      - CLEANUPINTERVAL=60
       - VERBOSELOG=true
       - VERBOSE=true
       - NOTIFIERS=twitter,discord,mqtt,ifttt
-      - CLEANUPINTERVAL=60
+      - TWITTER_CONSKEY=${TWITTER_CONSKEY}
+      - TWITTER_CONSSECRET=${TWITTER_CONSSECRET}
+      - TWITTER_ACCTOKEN=${TWITTER_ACCTOKEN}
+      - TWITTER_ACCSECRET=${TWITTER_ACCSECRET}
     tmpfs:
       - /tmp:rw,nosuid,nodev,noexec,relatime,size=128M
     volumes:
