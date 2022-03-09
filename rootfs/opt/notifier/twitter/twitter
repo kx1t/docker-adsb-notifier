@@ -49,7 +49,7 @@ echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: notifier invoked"
 #######################################################################
 
 # First -- get a screenshot
-result="$(/opt/notifier/getscreenshotnow.sh ${param[icao]} ${param[notifyproc]})"
+screenshotfile="$(/opt/notifier/getscreenshotnow.sh ${param[icao]} ${param[notifyproc]})"
 # Screenshot retrieval finished. $result will contain a file link if successful, or empty if not successful
 
 # Now the actual notification:
@@ -57,12 +57,27 @@ result="$(/opt/notifier/getscreenshotnow.sh ${param[icao]} ${param[notifyproc]})
 if [[ "${TWITTER_CONSKEY}${TWITTER_CONSSECRET}${TWITTER_ACCTOKEN}${TWITTER_ACCSECRET}" == "" ]]
 then
   echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Twitter Keys and Secrets aren\'t defined. Cannot tweet!"
+  exit 0
+fi
 
-[[ ! -z "${result}" ]] && result="-a ${result}" || true
+# add screenshot to the message if available
+[[ ! -z "${screenshotfile}" ]] && rscreenshotfile="-a ${screenshotfile}" || true
 
-apprise "${result}" -b "$TWEET" twitter://$TWITTER_CONSKEY/$TWITTER_CONSSECRET/$TWITTER_ACCTOKEN/$TWITTER_ACCSECRET/?mode=tweet
+# Now invoke apprise to tweet:
+notif_result="$(apprise -vvv "${screenshotfile}" -b "${param[message_text]}" twitter://$TWITTER_CONSKEY/$TWITTER_CONSSECRET/$TWITTER_ACCTOKEN/$TWITTER_ACCSECRET/?mode=tweet)"
 
+# process the results
+apprise_exit_code="$?"
+mapfile -t twitter_result <<< "${notif_result}"
+for (( n=0; n<${#twitter_result[@]}; n++ )); do [[ "${twitter_result[n]}" =~ "Response Details" ]] && twitter_string="${twitter_result[n+1]}"; done
 
-
-
+# report on the results
+if [[ apprise_exit_code ]]
+then
+  echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Tweet sent successfully"
+  echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Twitter returned: ${twitter_string}"
+else
+  echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Tweet sent unsuccessfully"
+  echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Twitter returned: ${twitter_string}"
+fi
 exit 0
