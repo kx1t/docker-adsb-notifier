@@ -28,7 +28,7 @@ do
   then
     monitorproc="$$"
     nohup "${Exec_string}" "${@}" "notifyproc=$monitorproc" > "/run/notifier/procs/${Notifier}-$monitorproc" 2>&1 &
-    echo "202 ${Notifier}: invoked - callback handler: ${Notifier}-$monitorproc"
+    echo "202 ${Notifier}: invoked - callback handler: ${Notifier}-${monitorproc}"
   else echo "500 ${Notifier}: error: handler not found"
   fi
 done

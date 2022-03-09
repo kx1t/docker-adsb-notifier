@@ -1,7 +1,5 @@
 #!/usr/bin/with-contenv bash
 
-SERVICE="twitter"
-
 # Use the following response conventions:
 # "RESPCODE yyyymmdd-hhmmss-zzzz #servicename: info-text"
 # Where:
@@ -17,7 +15,15 @@ SERVICE="twitter"
 # POSTing "status=callback-handler" to "notify.php". The callback-handler was provided in the reponse
 # to the original notification request.
 
+# Define any notification-internal constants below.
+# Do not change the $SERVICE variable definition.
+#
+# Note that ${param[notifyproc]} will contain a unique process identifier (in format "handler-xxx" where xxx is the Linux process ID)
+# to point at this specific instance of the notification. It can be used to get unique screenshots, create referable files, etc.
+
+SERVICE="${0##*/}"
 MAXWAITTIME=60
+
 echo "100 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: cmdline args = ${@}"
 
 # read commandline params into param[key]
@@ -26,44 +32,37 @@ arguments=( "$@" )
 declare -A param
 for Arg in "${arguments[@]}"; do param+=([${Arg%=*}]=${Arg#*=}); done
 
-echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: twitter notifier"
+# exit if notify_to is not empty, but we can't find the notifier in the list
+if [[ ! -z "$param[notify_to]" ]]
+then
+  IFS="," read -ra notify_list <<< "$param[notify_to]"
+  [[ ! " ${notify_list[*]} " =~ " ${SERVICE} " ]] && exit 0
+  unset notify_list
+fi
+unset IFS
 
-STARTTIME="$(date +%s)"
-while (( $(date +%s) < (STARTTIME + MAXWAITTIME) ))
-do
-  echo "102 invoking /opt/notifier/getscreenshot.sh ${param[icao]} ${param[notifyproc]}"
-  IFS=" " read -ra resultarray <<< "$(/opt/notifier/getscreenshot.sh "${param[icao]}" "${param[notifyproc]}")"
-  returnvalue="$?"
-  result=${resultarray[1]}
+# Now we are ready to do the notification
+echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: notifier invoked"
 
-  case "$returnvalue" in
+#######################################################################
+# Implement the actual notifier below                                 #
+#######################################################################
 
-    "0")
-      echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: file=${result}"
-      break
-    ;;
+# First -- get a screenshot
+result="$(/opt/notifier/getscreenshotnow.sh ${param[icao]} ${param[notifyproc]})"
+# Screenshot retrieval finished. $result will contain a file link if successful, or empty if not successful
 
-    "1")
-      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting 15 seconds"
-      # Sleep for the time that the getscreenshot service recommends before trying again to get the results.
-      # This is based on the longest time it could take for the service to return a screenshot: default=45 secs.
-      # Based on your preferences, you may decide to check more often, for example in 10 seconds intervals.
-      sleep "15s"
-      continue
-    ;;
+# Now the actual notification:
+# First make sure the keys and secrets are present. We cant check if they are correct, but we can see if they are present:
+if [[ "${TWITTER_CONSKEY}${TWITTER_CONSSECRET}${TWITTER_ACCTOKEN}${TWITTER_ACCSECRET}" == "" ]]
+then
+  echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: Twitter Keys and Secrets aren\'t defined. Cannot tweet!"
 
-    "2")
-      echo "102 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: waiting for another request to finish before retrying"
-      sleep "$result"
-      continue
-    ;;
+[[ ! -z "${result}" ]] && result="-a ${result}" || true
 
-    *)
-      echo "500 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: GetScreenshot unsuccessful, returned $returnvalue"
-      break
-    ;;
-  esac
-done
+apprise "${result}" -b "$TWEET" twitter://$TWITTER_CONSKEY/$TWITTER_CONSSECRET/$TWITTER_ACCTOKEN/$TWITTER_ACCSECRET/?mode=tweet
 
-echo "200 $(date +"%Y%m%d-%H%M%S%z") #${SERVICE}: GetScreenshot is finished, now we can do other things..."
+
+
+
 exit 0
